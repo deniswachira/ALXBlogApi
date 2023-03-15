@@ -3,45 +3,29 @@ const app = express();
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 const authRoute = require('./routes/auth');
+const videoRoute = require('./routes/videos');
 const userRoute = require('./routes/users');
-const postRoute = require('./routes/posts');
-const categoryRoute = require('./routes/categories')
-// const multer = require('multer');
+const categoryRoute = require('./routes/categories');
+const cookieParser = require('cookie-parser');
 
+//middlewares
+app.use(cookieParser())
+app.use(express.json());
 dotenv.config();
 
-app.use(express.json());
-
-mongoose.connect(process.env.MONGO_URI, {
+mongoose.connect(process.env.MONGO_URL, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 })
     .then(() => console.log('MongoDB connected...'))
     .catch(err => console.log(err));
 
-//storage to store images
-// const storage = multer.diskStorage({
-//     destination: (req, file, cb) => {
-//         cb(null, 'images');
-//     },
-//     filename: (req, file, cb) => {
-//         cb(null, req.body.name);
-//     }
-// });
 
-//upload file
-// const upload = multer({ storage: storage });
+app.use("/auth", authRoute);
+app.use("/videos", videoRoute);
+app.use("/user", userRoute);
+app.use("/category", categoryRoute);
 
-//set upload route
-// app.post('/api/upload', upload.single('file'), (req, res) => {
-//     res.send("File has been Uploaded");
-// });
-
-app.use("/api/auth", authRoute);
-app.use("/api/users", userRoute);
-app.use("/api/posts", postRoute);
-app.use("/api/categories", categoryRoute);
-
-app.listen("7000", () => {
-    console.log("server started port 7000");
-})
+app.listen(process.env.PORT || 5000, () => {
+    console.log('Server running on port 5000');
+});
