@@ -3,7 +3,7 @@ const app = express();
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 const authRoute = require('./routes/auth');
-const videoRoute = require('./routes/videos');
+const postRoute = require('./routes/posts');
 const userRoute = require('./routes/users');
 const categoryRoute = require('./routes/categories');
 const cookieParser = require('cookie-parser');
@@ -22,7 +22,7 @@ mongoose.connect(process.env.MONGO_URL, {
 
 
 app.use("/auth", authRoute);
-app.use("/videos", videoRoute);
+app.use("/post", postRoute);
 app.use("/user", userRoute);
 app.use("/categories", categoryRoute);
 

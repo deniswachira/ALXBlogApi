@@ -27,51 +27,52 @@ router.post('/login', async (req, res, next) => {
         const user = await User.findOne({ email: req.body.email });
         if (!user) {
             res.status(404).send("User not Found!");
+        } else {
+            const isPasswordValid = await bcrypt.compare(req.body.password, user.password);
+            if (!isPasswordValid) {
+                res.status(404).send("Invalid Credentials!");
+            }
+            const token = jwt.sign({ _id: user._id }, `${process.env.JWT_SECRET}`);
+            const { password, ...userWithoutPassword } = user.toObject();
+            res
+                .cookie("access_token", token, {
+                    httpOnly: true
+                })
+                .status(200)
+                .json(userWithoutPassword);
         }
-        const isPasswordValid = await bcrypt.compare(req.body.password, user.password);
-        if (!isPasswordValid) {
-            res.status(404).send("Invalid Credentials!");
-        }
-        const token = jwt.sign({ _id: user._id }, `${process.env.JWT_SECRET}`);
-        const { password, ...userWithoutPassword } = user.toObject();
-        res
-            .cookie("access_token", token, {
-                httpOnly: true
-            })
-            .status(200)
-            .json(userWithoutPassword);
     } catch (err) {
         next(err);
     }
 })
-router.post('/googleauth', async (req, res, next) => {
-    try {
-        const user = await User.findOne({ email: req.body.email });
-        if (user) {
-            const token = jwt.sign({ _id: user._id }, `${process.env.JWT_SECRET}`);
-            res
-                .cookie("access_token", token, {
-                    httpOnly: true
-                })
-                .status(200)
-                .json(user._doc);
-        } else {
-            const newUser = new User({
-                ...req.body,
-                fromGoogle: true,
-            })
-            const savedUser = await newUser.save();
-            const token = jwt.sign({ _id: savedUser._id }, `${process.env.JWT_SECRET}`);
-            res
-                .cookie("access_token", token, {
-                    httpOnly: true
-                })
-                .status(200)
-                .json(savedUser._doc);
-        }
-    } catch (err) {
-        next(err);
-    }
-});
+// router.post('/googleauth', async (req, res, next) => {
+//     try {
+//         const user = await User.findOne({ email: req.body.email });
+//         if (user) {
+//             const token = jwt.sign({ _id: user._id }, `${process.env.JWT_SECRET}`);
+//             res
+//                 .cookie("access_token", token, {
+//                     httpOnly: true
+//                 })
+//                 .status(200)
+//                 .json(user._doc);
+//         } else {
+//             const newUser = new User({
+//                 ...req.body,
+//                 fromGoogle: true,
+//             })
+//             const savedUser = await newUser.save();
+//             const token = jwt.sign({ _id: savedUser._id }, `${process.env.JWT_SECRET}`);
+//             res
+//                 .cookie("access_token", token, {
+//                     httpOnly: true
+//                 })
+//                 .status(200)
+//                 .json(savedUser._doc);
+//         }
+//     } catch (err) {
+//         next(err);
+//     }
+// });
 
 module.exports = router;

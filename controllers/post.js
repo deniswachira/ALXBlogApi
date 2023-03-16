@@ -1,21 +1,22 @@
 const User = require('../models/User');
-const Video = require('../models/Category');
+const Category = require('../models/Category');
+const Post = require('../models/Post');
 const { createError } = require("../utils/error");
 
 const random = async (req, res, next) => {
     try {
-        const videos = await Video.aggregate([{ $sample: { size: 38 } }]);
-        res.status(200).json(videos);
+        const posts = await Post.aggregate([{ $sample: { size: 38 } }]);
+        res.status(200).json(posts);
     } catch (err) {
         next(err);
     }
 }
 
-uploadVideo = async (req, res, next) => {
-    const newVideo = new Video({ userId: req.user._id, ...req.body });
+const uploadPost = async (req, res, next) => {
+    const newPost = new Post({ userId: req.user._id, ...req.body });
     try {
-        const savedVideo = await newVideo.save();
-        res.status(201).json(savedVideo);
+        const savedPost = await newPost.save();
+        res.status(201).json(savedPost);
     } catch (err) {
         next(err);
     }
@@ -59,10 +60,10 @@ const deleteVideo = async (req, res, next) => {
     }
 }
 
-const getVideo = async (req, res, next) => {
+const getPost = async (req, res, next) => {
     try {
-        const video = await Video.findById(req.params.id);
-        res.status(200).json(video);
+        const post = await Post.findById(req.params.id);
+        res.status(200).json(post);
     } catch (err) {
         next(err);
     }
@@ -125,5 +126,5 @@ const search = async (req, res, next) => {
     }
 }
 module.exports = {
-    random, search, sub, trends, addView, getVideo, deleteVideo, updateVideo, uploadVideo, getByTag
+    random, search, sub, trends, addView, getPost, deleteVideo, updateVideo, uploadPost, getByTag
 }
